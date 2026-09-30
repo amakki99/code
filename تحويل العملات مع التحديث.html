@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحويل العملات · الدرهم الإماراتي</title>
+<style>
+  :root{
+    --teal-deep:#123B5D;
+    --teal-mid:#1F5F8B;
+    --teal-soft:#3B82B4;
+    --gold:#C6A15B;
+    --gold-deep:#A8823A;
+    --gold-soft:#EAD9B4;
+    --bg-page:#EAF3FA;
+    --card:#FFFFFF;
+    --ink:#102A43;
+    --ink-soft:#526E82;
+    --ink-faint:#8198AA;
+    --border:#D5E4EF;
+    --green:#1F8A5F;
+    --red:#C24D3E;
+    --shadow-lg: 0 20px 45px -18px rgba(18,59,93,0.35);
+    --shadow-sm: 0 2px 12px rgba(18,59,93,0.08);
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+  }
+
+  body[data-theme="dark"]{
+    --bg-page:#081A28;
+    --card:#10283A;
+    --ink:#EDF6FC;
+    --ink-soft:#A5BDCE;
+    --ink-faint:#6F8DA2;
+    --border:#24445A;
+    --teal-deep:#091E2E;
+    --gold-soft:#EAD9B4;
+    --shadow-lg: 0 20px 45px -18px rgba(0,0,0,0.55);
+    --shadow-sm: 0 2px 10px rgba(0,0,0,0.28);
+  }
+  body[data-theme="dark"] .row{ background:#0C2232; }
+  body[data-theme="dark"] .row:focus-within{ background:#112C40; }
+  body[data-theme="dark"] .amt-input,
+  body[data-theme="dark"] .currency-trigger,
+  body[data-theme="dark"] .currency-dropdown,
+  body[data-theme="dark"] .currency-search-input,
+  body[data-theme="dark"] .rate-search-input{ background-color:#0C2232; color:var(--ink); }
+  body[data-theme="dark"] .result-wrap{ background:#0B2940; color:#B9DCF2; }
+  body[data-theme="dark"] .del-btn{ background:#0C2232; color:var(--ink-soft); border-color:var(--border); }
+  body[data-theme="dark"] .add-row-btn{ background:#122D41; }
+  body[data-theme="dark"] .clear-inputs-btn{ background:#241D25; color:#F3AAA1; border-color:#6A3A3A; }
+  body[data-theme="dark"] .note{ background:#0C2232; }
+  body[data-theme="dark"] .rate-item{ border-color:var(--border); }
+  body[data-theme="dark"] .btn-refresh{ background:var(--card); color:var(--gold-soft); }
+  body[data-theme="dark"] .status-banner{ background:#2A1614; color:#F1978A; border-color:#4A2622; }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg-page);
+    color:var(--ink);
+    font-family:Tahoma,'Segoe UI',Arial,sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    transition:background .25s ease, color .25s ease;
+  }
+  h1,h2,h3,.display-num{font-family:Tahoma,'Segoe UI',Arial,sans-serif;}
+  ::selection{background:var(--gold-soft);}
+
+  button{font-family:inherit; cursor:pointer;}
+  input,select{font-family:inherit;}
+
+  /* ===== Skip link / focus ===== */
+  *:focus-visible{outline:3px solid var(--gold); outline-offset:2px;}
+
+  /* ===== App shell ===== */
+  .app{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 20px 64px;
+  }
+
+  /* ===== Header ===== */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:26px 4px 18px;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{
+    width:44px;height:44px;border-radius:12px;
+    background:linear-gradient(155deg,var(--teal-deep),var(--teal-soft));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--gold-soft);font-weight:800;font-size:18px;
+    box-shadow:var(--shadow-sm);
+    flex-shrink:0;
+  }
+  .brand-text h1{font-size:19px;margin:0;font-weight:800;letter-spacing:.2px;}
+  .brand-text p{margin:2px 0 0;font-size:12.5px;color:var(--ink-soft);font-weight:500;}
+
+  .topbar-actions{display:flex;align-items:center;gap:10px;}
+  .rate-time{
+    font-size:12px;color:var(--ink-soft);
+    display:flex;flex-direction:column;align-items:flex-end;
+    line-height:1.5;
+  }
+  .rate-time b{color:var(--ink);font-weight:600;}
+  .btn-refresh{
+    display:flex;align-items:center;gap:8px;
+    background:var(--card);
+    border:1px solid var(--border);
+    color:var(--teal-deep);
+    padding:10px 16px;
+    border-radius:999px;
+    font-size:13.5px;
+    font-weight:700;
+    box-shadow:var(--shadow-sm);
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .btn-refresh:hover{border-color:var(--gold); transform:translateY(-1px);}
+  .btn-refresh svg{width:16px;height:16px; transition:transform .5s ease;}
+  .btn-refresh.spinning svg{animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @media (max-width:560px){
+    .btn-refresh{width:40px;height:40px;padding:0;justify-content:center;}
+    .btn-refresh .refresh-label{display:none;}
+  }
+
+  .btn-theme{
+    display:flex;align-items:center;justify-content:center;
+    width:40px;height:40px;
+    border-radius:50%;
+    border:1px solid var(--border);
+    background:var(--card);
+    color:var(--teal-deep);
+    box-shadow:var(--shadow-sm);
+    transition:border-color .15s ease, transform .15s ease;
+    flex-shrink:0;
+  }
+  .btn-theme:hover{border-color:var(--gold); transform:translateY(-1px);}
+  .btn-theme svg{width:18px;height:18px;}
+  body[data-theme="dark"] .btn-theme{ color:var(--gold-soft); }
+  .btn-theme .icon-sun{display:none;}
+  body[data-theme="dark"] .btn-theme .icon-moon{display:none;}
+  body[data-theme="dark"] .btn-theme .icon-sun{display:block;}
+
+  /* ===== Hero total card ===== */
+  .hero{
+    position:relative;
+    background:radial-gradient(120% 140% at 15% 0%, #2B78A6 0%, var(--teal-deep) 55%, #081E30 100%);
+    border-radius:var(--radius-lg);
+    padding:38px 32px 34px;
+    color:#fff;
+    overflow:hidden;
+    box-shadow:var(--shadow-lg);
+    isolation:isolate;
+  }
+  .hero-pattern{
+    position:absolute; inset:0; z-index:0; opacity:.16;
+    background-image:
+      repeating-linear-gradient(45deg, transparent 0 22px, rgba(198,161,91,.55) 22px 23px),
+      repeating-linear-gradient(-45deg, transparent 0 22px, rgba(198,161,91,.35) 22px 23px);
+    -webkit-mask-image: radial-gradient(120% 100% at 85% 15%, #000 0%, transparent 65%);
+            mask-image: radial-gradient(120% 100% at 85% 15%, #000 0%, transparent 65%);
+  }
+  .hero-inner{position:relative; z-index:1;}
+  .hero-eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12.5px; font-weight:700; letter-spacing:.4px;
+    color:var(--gold-soft);
+    background:rgba(198,161,91,.14);
+    border:1px solid rgba(198,161,91,.35);
+    padding:6px 14px;border-radius:999px;
+  }
+  .hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(31,138,95,.25);}
+  .hero-label{margin:18px 0 6px; font-size:14.5px; color:rgba(255,255,255,.72); font-weight:500;}
+  .hero-total-row{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;}
+  .display-num{
+    font-size:clamp(38px, 6.4vw, 62px);
+    font-weight:800;
+    letter-spacing:-.5px;
+    line-height:1;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-currency{font-size:20px; font-weight:700; color:var(--gold-soft);}
+  .copy-total-btn{
+    margin-inline-start:auto;
+    align-self:center;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    min-height:40px;
+    padding:8px 15px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.28);
+    background:rgba(255,255,255,.11);
+    color:#fff;
+    font-size:13px;
+    font-weight:800;
+    backdrop-filter:blur(5px);
+    transition:background .15s ease,transform .15s ease,border-color .15s ease;
+  }
+  .copy-total-btn:hover{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.45);}
+  .copy-total-btn:active{transform:scale(.97);}
+  .copy-total-btn.copied{background:rgba(31,138,95,.38);border-color:rgba(162,236,201,.65);}
+  @media (max-width:560px){
+    .copy-total-btn{width:100%;margin-inline-start:0;margin-top:5px;}
+  }
+  .hero-sub{margin-top:14px; font-size:13.5px; color:rgba(255,255,255,.6); display:flex; gap:18px; flex-wrap:wrap;}
+  .hero-sub b{color:#fff; font-weight:700;}
+
+  /* ===== Layout grid ===== */
+  .grid{
+    display:grid;
+    grid-template-columns: 1.7fr 1fr;
+    gap:22px;
+    margin-top:24px;
+    align-items:start;
+  }
+  @media (max-width: 880px){
+    .grid{grid-template-columns:1fr;}
+  }
+
+  /* ===== Panels ===== */
+  .panel{
+    background:var(--card);
+    border-radius:var(--radius-lg);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow-sm);
+    padding:22px 22px 20px;
+  }
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .panel-head h2{font-size:16px; margin:0; font-weight:800;}
+  .panel-head .count{
+    font-size:12px; color:var(--ink-soft); font-weight:600;
+    background:var(--bg-page); padding:4px 10px; border-radius:999px;
+  }
+
+  /* ===== Currency rows ===== */
+  .rows{display:flex; flex-direction:column; gap:10px;}
+  .row{
+    display:grid;
+    grid-template-columns: 165px 1fr 1fr 34px;
+    gap:10px;
+    align-items:center;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    background:#F8FBFE;
+    transition:border-color .15s ease, background .15s ease;
+  }
+  .row:focus-within{border-color:var(--gold); background:#fff;}
+  .row.is-base{
+    background:linear-gradient(0deg, rgba(198,161,91,.07), rgba(198,161,91,.07));
+    border-color:var(--gold-soft);
+  }
+  @media (max-width:560px){
+    .row{grid-template-columns: 125px 1fr 34px; grid-template-areas:"cur amt del" "cur res res";}
+    .row .currency-picker{grid-area:cur;}
+    .row .amt-wrap{grid-area:amt;}
+    .row .result-wrap{grid-area:res; margin-top:2px;}
+    .row .del-btn{grid-area:del;}
+  }
+
+  .currency-picker{position:relative; min-width:0;}
+  .currency-picker.open{z-index:40;}
+  .currency-trigger{
+    width:100%;
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    align-items:center;
+    gap:7px;
+    border:1px solid var(--border);
+    background:#fff;
+    padding:0 10px;
+    border-radius:var(--radius-sm);
+    color:var(--ink);
+    height:44px;
+    text-align:right;
+  }
+  .currency-trigger:hover{border-color:var(--teal-soft);}
+  .currency-code{font-size:12px;font-weight:900;color:var(--teal-mid);direction:ltr;}
+  .currency-name{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .currency-trigger svg{width:13px;height:13px;color:var(--ink-soft);transition:transform .15s ease;}
+  .currency-picker.open .currency-trigger svg{transform:rotate(180deg);}
+  .currency-dropdown{
+    position:absolute;
+    z-index:30;
+    top:calc(100% + 7px);
+    right:0;
+    width:min(300px, calc(100vw - 54px));
+    padding:9px;
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    background:var(--card);
+    box-shadow:0 18px 38px rgba(18,59,93,.2);
+    display:none;
+  }
+  .currency-picker.open .currency-dropdown{display:block;}
+  .currency-search-input,.rate-search-input{
+    width:100%;height:42px;
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    background:var(--card);
+    color:var(--ink);
+    padding:0 12px;
+    font-size:13px;
+    font-weight:600;
+  }
+  .currency-options{max-height:260px;overflow:auto;margin-top:7px;overscroll-behavior:contain;}
+  .currency-option{
+    width:100%;display:flex;align-items:center;gap:9px;
+    border:0;background:transparent;color:var(--ink);
+    padding:9px 8px;border-radius:8px;text-align:right;
+  }
+  .currency-option:hover,.currency-option.selected{background:var(--bg-page);}
+  .currency-option .option-code{min-width:36px;color:var(--teal-mid);font-weight:900;font-size:12px;direction:ltr;}
+  .currency-option .option-name{font-size:13px;font-weight:600;}
+  .empty-search{padding:22px 8px;text-align:center;color:var(--ink-soft);font-size:12.5px;}
+  @media (max-width:560px){
+    .currency-trigger{grid-template-columns:1fr auto;}
+    .currency-trigger .currency-name{display:none;}
+  }
+  .amt-wrap, .result-wrap{position:relative;}
+  .amt-input{
+    width:100%;
+    height:44px;
+    border:1px solid var(--border);
+    border-radius:var(--radius-sm);
+    padding:0 12px;
+    font-size:15px;
+    font-weight:700;
+    color:var(--ink);
+    background:#fff;
+    font-variant-numeric: tabular-nums;
+  }
+  .amt-input::placeholder{color:var(--ink-faint); font-weight:500;}
+  .result-wrap{
+    height:44px;
+    border-radius:var(--radius-sm);
+    background:#EAF3F9;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 12px;
+    font-size:14px; font-weight:700; color:var(--teal-deep);
+    font-variant-numeric: tabular-nums;
+  }
+  .result-wrap span.tag{font-size:10.5px; font-weight:700; color:var(--ink-soft);}
+  .del-btn{
+    width:34px;height:34px;border-radius:50%;
+    border:1px solid var(--border);
+    background:#fff;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--ink-soft);
+    transition:all .15s ease;
+  }
+  .del-btn:hover{background:var(--red); border-color:var(--red); color:#fff;}
+  .del-btn:disabled{opacity:.35; cursor:not-allowed;}
+  .del-btn:disabled:hover{background:#fff; color:var(--ink-soft); border-color:var(--border);}
+
+  .entry-actions{
+    display:grid;
+    grid-template-columns:1.25fr 1fr;
+    gap:10px;
+    margin-top:14px;
+  }
+  .add-row-btn{
+    width:100%;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:13px;
+    border-radius:var(--radius-md);
+    border:1.5px dashed var(--gold-deep);
+    background:#F5FAFE;
+    color:var(--gold-deep);
+    font-weight:800;
+    font-size:14px;
+    transition:background .15s ease;
+  }
+  .add-row-btn:hover{background:var(--gold-soft);}
+  .clear-inputs-btn{
+    width:100%;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:13px;
+    border-radius:var(--radius-md);
+    border:1px solid #E7BDB7;
+    background:#FFF7F6;
+    color:var(--red);
+    font-weight:800;
+    font-size:14px;
+    transition:background .15s ease,border-color .15s ease,transform .15s ease;
+  }
+  .clear-inputs-btn:hover{background:#FDEEEC;border-color:var(--red);}
+  .clear-inputs-btn:active{transform:scale(.98);}
+  @media (max-width:420px){
+    .entry-actions{grid-template-columns:1fr;}
+  }
+
+  /* ===== Side panel: rates & breakdown ===== */
+  .rate-search{position:relative;margin-bottom:10px;}
+  .rate-search svg{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:16px;color:var(--ink-soft);pointer-events:none;}
+  .rate-search-input{padding-right:38px;}
+  .rate-list{display:flex; flex-direction:column;max-height:560px;overflow:auto;padding-left:5px;overscroll-behavior:contain;}
+  .rate-item{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:11px 2px;
+    border-bottom:1px solid var(--border);
+    font-size:13.5px;
+  }
+  .rate-item:last-child{border-bottom:none;}
+  .rate-item .cur{display:flex; align-items:center; gap:9px; font-weight:700; color:var(--ink);}
+  .flag-chip{
+    width:26px;height:26px;border-radius:8px;
+    background:var(--teal-deep);
+    color:var(--gold-soft);
+    display:flex;align-items:center;justify-content:center;
+    font-size:10.5px;font-weight:800;
+    flex-shrink:0;
+  }
+  .rate-item .val{color:var(--ink-soft); font-weight:600; font-variant-numeric: tabular-nums;}
+
+  .note{
+    margin-top:16px;
+    font-size:12px;
+    line-height:1.9;
+    color:var(--ink-soft);
+    background:var(--bg-page);
+    border-radius:var(--radius-sm);
+    padding:12px 14px;
+  }
+  .note b{color:var(--ink);}
+
+  .status-banner{
+    margin-top:14px;
+    display:none;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    font-weight:600;
+    padding:10px 12px;
+    border-radius:var(--radius-sm);
+    background:#E4F2FB;
+    color:var(--teal-mid);
+    border:1px solid #BDDCEC;
+  }
+  .status-banner.show{display:flex;}
+  .script-warning{
+    margin:0 0 18px;
+    padding:14px 16px;
+    border-radius:var(--radius-md);
+    background:#FFF2D9;
+    color:#7A4B00;
+    border:1px solid #EACB8D;
+    font-size:13px;
+    font-weight:700;
+    line-height:1.8;
+  }
+
+  footer{
+    text-align:center;
+    margin-top:30px;
+    color:var(--ink-faint);
+    font-size:12px;
+  }
+  footer a{color:var(--teal-mid);font-weight:700;text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body data-theme="light">
+
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">د.إ</div>
+      <div class="brand-text">
+        <h1>لوحة تحويل العملات</h1>
+        <p>حوّل عدة عملات دفعة واحدة إلى الدرهم الإماراتي</p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="rate-time">
+        <span>آخر تحديث للأسعار</span>
+        <b id="lastUpdate">أسعار مدمجة · 19/08/2026</b>
+      </div>
+      <button class="btn-refresh" id="refreshBtn" type="button" aria-label="تحديث أسعار العملات الآن">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+        <span class="refresh-label">تحديث الأسعار</span>
+      </button>
+      <button class="btn-theme" id="themeBtn" type="button" aria-label="تبديل الوضع الليلي">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <noscript>
+    <div class="script-warning">عارض الملفات الحالي لا يشغّل JavaScript؛ لذلك لن تعمل الحاسبة أو الأزرار. افتح الملف في متصفح أو عارض HTML يدعم JavaScript.</div>
+  </noscript>
+
+  <div class="hero">
+    <div class="hero-pattern"></div>
+    <div class="hero-inner">
+      <span class="hero-eyebrow"><span class="dot"></span> إجمالي التحويل الحالي</span>
+      <div class="hero-label">مجموع كل العملات المُدخلة، محسوبة بالدرهم الإماراتي</div>
+      <div class="hero-total-row">
+        <span class="display-num" id="totalAED">0.00</span>
+        <span class="hero-currency">د.إ AED</span>
+        <button class="copy-total-btn" id="copyTotalBtn" type="button" aria-label="نسخ إجمالي التحويل">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyTotalLabel" aria-live="polite">نسخ الإجمالي</span>
+        </button>
+      </div>
+      <div class="hero-sub">
+        <span>عدد العملات المُدخلة: <b id="rowCountLabel">0</b></span>
+        <span>عدد العملات المدعومة: <b id="supportedCount">0</b></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="status-banner" id="statusBanner">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v5M12 16h.01"/></svg>
+    <span id="statusText"></span>
+  </div>
+
+  <div class="grid">
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>إدخال العملات</h2>
+        <span class="count"><span id="rowCount">0</span> بند</span>
+      </div>
+
+      <div class="rows" id="rowsContainer"></div>
+
+      <div class="entry-actions">
+        <button class="add-row-btn" id="addRowBtn" type="button">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          إضافة عملة جديدة
+        </button>
+        <button class="clear-inputs-btn" id="clearInputsBtn" type="button" aria-label="مسح جميع المبالغ المدخلة">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 10v6M14 10v6"/></svg>
+          مسح المدخلات
+        </button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>أسعار الصرف مقابل الدرهم</h2>
+      </div>
+      <div class="rate-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input class="rate-search-input" id="currencySearch" type="search" placeholder="ابحث باسم العملة أو الرمز…" autocomplete="off" aria-label="البحث في العملات">
+      </div>
+      <div class="rate-list" id="rateList"></div>
+      <div class="note">
+        <b>ملاحظة:</b> تُحدّث الأسعار تلقائيًا عند توفر الإنترنت، وتُحفظ آخر أسعار ناجحة للاستخدام دون اتصال. الخدمة المجانية تحدّث بياناتها مرة يوميًا، والنتائج إرشادية وليست سعر شراء أو بيع مصرفيًا.
+      </div>
+    </div>
+
+  </div>
+
+  <footer>يعمل متصلًا ودون اتصال — <a href="https://www.exchangerate-api.com" target="_blank" rel="noopener">Rates By Exchange Rate API</a></footer>
+</div>
+
+<script>
+(function(){
+
+  // لقطة أسعار مدمجة محليًا بتاريخ 19 أغسطس 2026: قيمة 1 AED بكل عملة.
+  const OFFLINE_RATES = {
+    AED:1,AFN:17.788484,ALL:21.823664,AMD:99.634458,ANG:0.487406,AOA:253.133632,
+    ARS:406.841879,AUD:0.383913,AWG:0.487406,AZN:0.462984,BAM:0.460057,
+    BBD:0.544588,BDT:33.269739,BGN:0.460057,BHD:0.102383,BIF:814.808378,
+    BMD:0.272294,BND:0.348033,BOB:3.16015,BRL:1.417912,BSD:0.272294,
+    BTN:26.076095,BWP:3.714943,BYN:0.826566,BZD:0.544588,CAD:0.378176,
+    CDF:620.776084,CHF:0.221228,CLF:0.006304,CLP:249.183654,CNH:1.836733,
+    CNY:1.839867,COP:853.693915,CRC:122.419177,CUP:6.535058,CVE:25.936936,
+    CZK:5.689873,DJF:48.392376,DKK:1.758546,DOP:16.008564,DZD:36.231953,
+    EGP:13.756924,ERN:4.084411,ETB:43.753031,EUR:0.235224,FJD:0.601224,
+    FKP:0.201184,FOK:1.758545,GBP:0.201184,GEL:0.711226,GGP:0.201184,
+    GHS:3.012438,GIP:0.201184,GMD:20.339613,GNF:2391.429815,GTQ:2.078036,
+    GYD:56.972173,HKD:2.135765,HNL:7.30275,HRK:1.772293,HTG:35.605694,
+    HUF:85.84937,IDR:4864.301011,ILS:0.814024,IMP:0.201184,INR:26.076164,
+    IQD:357.404537,IRR:366284.873625,ISK:33.448875,JEP:0.201184,JMD:43.112303,
+    JOD:0.193057,JPY:43.455922,KES:35.260926,KGS:23.820061,KHR:1100.49311,
+    KID:0.383912,KMF:115.722451,KRW:384.450699,KWD:0.084034,KYD:0.226912,
+    KZT:125.755472,LAK:6081.935575,LBP:24370.319946,LKR:90.357415,
+    LRD:49.445878,LSL:4.426383,LYD:1.729553,MAD:2.531402,MDL:4.683657,
+    MGA:1177.635744,MKD:14.52445,MMK:572.25029,MNT:986.420868,MOP:2.199838,
+    MRU:10.93566,MUR:12.78768,MVR:4.206868,MWK:474.927036,MXN:4.645499,
+    MYR:1.105191,MZN:17.356962,NAD:4.426383,NGN:367.883471,NIO:10.023506,
+    NOK:2.56309,NPR:41.721753,NZD:0.463307,OMR:0.104696,PAB:0.272294,
+    PEN:0.916401,PGK:1.207389,PHP:16.836766,PKR:75.621625,PLN:1.016528,
+    PYG:1641.363258,QAR:0.99115,RON:1.233255,RSD:27.604315,RUB:23.154679,
+    RWF:401.879713,SAR:1.021103,SBD:2.15487,SCR:3.961276,SDG:122.343189,
+    SEK:2.595778,SGD:0.348033,SHP:0.201184,SLE:6.711774,SLL:6711.774228,
+    SOS:155.743113,SRD:10.292359,SSP:1537.127773,STN:5.76298,SYP:33.152247,
+    SZL:4.426383,THB:9.00877,TJS:2.515537,TMT:0.95302,TND:0.794813,
+    TOP:0.643115,TRY:13.0502,TTD:1.837751,TVD:0.383912,TWD:8.684658,
+    TZS:720.416316,UAH:12.199463,UGX:1012.336954,USD:0.272294,
+    UYU:10.950615,UZS:3218.136515,VES:210.568414,VND:7111.431164,
+    VUV:32.098309,WST:0.732105,XAF:154.296602,XCD:0.735194,XCG:0.487406,
+    XDR:0.199131,XOF:154.296602,XPF:28.069709,YER:64.584859,ZAR:4.42578,
+    ZMW:5.122579,ZWG:7.271232,ZWL:7.271232
+  };
+
+  // جميع رموز العملات المتاحة في لقطة الأسعار المدمجة.
+  const ARABIC_NAMES = {
+    AED:'درهم إماراتي',USD:'دولار أمريكي',EUR:'يورو',GBP:'جنيه إسترليني',
+    SAR:'ريال سعودي',QAR:'ريال قطري',KWD:'دينار كويتي',OMR:'ريال عُماني',
+    BHD:'دينار بحريني',EGP:'جنيه مصري',YER:'ريال يمني',JOD:'دينار أردني',
+    IQD:'دينار عراقي',DZD:'دينار جزائري',TND:'دينار تونسي',LYD:'دينار ليبي',
+    MAD:'درهم مغربي',SDG:'جنيه سوداني',SYP:'ليرة سورية',LBP:'ليرة لبنانية',
+    INR:'روبية هندية',PKR:'روبية باكستانية',PHP:'بيزو فلبيني',CNY:'يوان صيني',
+    JPY:'ين ياباني',TRY:'ليرة تركية'
+  };
+  const currencyNames = typeof Intl.DisplayNames === 'function'
+    ? new Intl.DisplayNames(['ar'], {type:'currency'}) : null;
+  const CURRENCIES = Object.keys(OFFLINE_RATES)
+    .map(code=>({
+      code,
+      name:ARABIC_NAMES[code] || (currencyNames ? currencyNames.of(code) : code),
+      chip:code
+    }));
+
+  let rates = Object.assign({}, OFFLINE_RATES);
+  let rowSeq = 0;
+  let rows = []; // {id, code, amount}
+
+  const rowsContainer = document.getElementById('rowsContainer');
+  const totalAEDEl = document.getElementById('totalAED');
+  const copyTotalBtn = document.getElementById('copyTotalBtn');
+  const copyTotalLabel = document.getElementById('copyTotalLabel');
+  const rowCountEl = document.getElementById('rowCount');
+  const rowCountLabelEl = document.getElementById('rowCountLabel');
+  const supportedCountEl = document.getElementById('supportedCount');
+  const rateListEl = document.getElementById('rateList');
+  const currencySearchEl = document.getElementById('currencySearch');
+  const lastUpdateEl = document.getElementById('lastUpdate');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const statusBanner = document.getElementById('statusBanner');
+  const statusText = document.getElementById('statusText');
+  const RATE_CACHE_KEY = 'aed-converter-rates-v1';
+
+  supportedCountEl.textContent = CURRENCIES.length;
+
+  function fmt(n, decimals){
+    decimals = decimals === undefined ? 2 : decimals;
+    return Number(n).toLocaleString('en-US', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+  }
+
+  function currencyLabel(c){
+    const found = CURRENCIES.find(x=>x.code===c);
+    return found ? found.name : c;
+  }
+
+  function toAED(amount, code){
+    const rate = rates[code];
+    if(!rate) return 0;
+    return amount / rate; // rates[code] = كم وحدة من هذه العملة تساوي 1 AED
+  }
+
+  function escapeHTML(value){
+    return String(value).replace(/[&<>"]/g, ch=>({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'
+    })[ch]);
+  }
+
+  function normalizeSearch(value){
+    return String(value || '').normalize('NFD')
+      .replace(/[\u0300-\u036f\u064B-\u065F]/g,'')
+      .toLowerCase().trim();
+  }
+
+  function filteredCurrencies(query){
+    const q = normalizeSearch(query);
+    if(!q) return CURRENCIES;
+    return CURRENCIES.filter(c=>normalizeSearch(`${c.code} ${c.name}`).includes(q));
+  }
+
+  function pickerOptionsHTML(selectedCode, query){
+    const matches = filteredCurrencies(query);
+    if(!matches.length) return '<div class="empty-search">لا توجد عملة مطابقة</div>';
+    return matches.map(c=>`
+      <button class="currency-option ${c.code===selectedCode?'selected':''}" type="button" data-code="${c.code}">
+        <span class="option-code">${c.code}</span>
+        <span class="option-name">${escapeHTML(c.name)}</span>
+      </button>`).join('');
+  }
+
+  function closeCurrencyPickers(){
+    document.querySelectorAll('.currency-picker.open').forEach(p=>p.classList.remove('open'));
+  }
+
+  function renderPickerOptions(rowEl, id, query){
+    const row = rows.find(r=>r.id===id);
+    const list = rowEl.querySelector('[data-role="currency-options"]');
+    list.innerHTML = pickerOptionsHTML(row.code, query);
+    list.querySelectorAll('.currency-option').forEach(option=>{
+      option.addEventListener('click', e=>{
+        e.stopPropagation();
+        row.code = option.dataset.code;
+        renderRows();
+      });
+    });
+  }
+
+  function addRow(code, amount){
+    const id = 'r' + (++rowSeq);
+    rows.push({ id, code: code || 'USD', amount: amount === undefined ? '' : amount });
+    renderRows();
+  }
+
+  function removeRow(id){
+    rows = rows.filter(r=>r.id!==id);
+    if(rows.length === 0){ addRow('AED', ''); return; }
+    renderRows();
+  }
+
+  function clearInputs(){
+    closeCurrencyPickers();
+    rows = rows.map(row=>Object.assign({}, row, {amount:''}));
+    renderRows();
+  }
+
+  function renderRows(){
+    rowsContainer.innerHTML = rows.map(r=>{
+      const aedVal = r.code === 'AED' ? (parseFloat(r.amount)||0) : toAED(parseFloat(r.amount)||0, r.code);
+      const isBase = r.code === 'AED';
+      return `
+        <div class="row ${isBase?'is-base':''}" data-id="${r.id}">
+          <div class="currency-picker" data-role="picker">
+            <button class="currency-trigger" data-role="currency-trigger" type="button" aria-label="اختيار العملة: ${escapeHTML(currencyLabel(r.code))}" aria-haspopup="listbox">
+              <span class="currency-code">${r.code}</span>
+              <span class="currency-name">${escapeHTML(currencyLabel(r.code))}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div class="currency-dropdown" data-role="currency-dropdown">
+              <input class="currency-search-input" data-role="currency-search" type="search" placeholder="ابحث بالاسم أو الرمز…" autocomplete="off" aria-label="البحث عن عملة">
+              <div class="currency-options" data-role="currency-options" role="listbox"></div>
+            </div>
+          </div>
+          <div class="amt-wrap">
+            <input class="amt-input" data-role="amount" type="number" inputmode="decimal" step="any" min="0"
+                   placeholder="0.00" value="${r.amount}" aria-label="المبلغ بعملة ${currencyLabel(r.code)}">
+          </div>
+          <div class="result-wrap">
+            <span>${fmt(aedVal)}</span>
+            <span class="tag">AED</span>
+          </div>
+          <button class="del-btn" data-role="delete" type="button" aria-label="حذف هذا البند" ${rows.length<=1?'disabled':''}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>`;
+    }).join('');
+
+    rowCountEl.textContent = rows.length;
+    rowCountLabelEl.textContent = rows.length;
+
+    // ربط الأحداث
+    rowsContainer.querySelectorAll('.row').forEach(rowEl=>{
+      const id = rowEl.getAttribute('data-id');
+      const picker = rowEl.querySelector('[data-role="picker"]');
+      const trigger = rowEl.querySelector('[data-role="currency-trigger"]');
+      const search = rowEl.querySelector('[data-role="currency-search"]');
+      trigger.addEventListener('click', e=>{
+        e.stopPropagation();
+        const wasOpen = picker.classList.contains('open');
+        closeCurrencyPickers();
+        if(!wasOpen){
+          picker.classList.add('open');
+          search.value = '';
+          renderPickerOptions(rowEl, id, '');
+          setTimeout(()=>search.focus(), 0);
+        }
+      });
+      search.addEventListener('click', e=>e.stopPropagation());
+      search.addEventListener('input', e=>renderPickerOptions(rowEl, id, e.target.value));
+      search.addEventListener('keydown', e=>{
+        if(e.key==='Escape'){
+          picker.classList.remove('open');
+          trigger.focus();
+        }else if(e.key==='Enter'){
+          const options = rowEl.querySelectorAll('.currency-option');
+          if(options.length===1) options[0].click();
+        }
+      });
+      rowEl.querySelector('[data-role="amount"]').addEventListener('input', e=>{
+        const row = rows.find(r=>r.id===id);
+        row.amount = e.target.value;
+        updateRowResultOnly(id);
+        updateTotal();
+      });
+      const delBtn = rowEl.querySelector('[data-role="delete"]');
+      delBtn.addEventListener('click', ()=>removeRow(id));
+    });
+
+    updateTotal();
+  }
+
+  function updateRowResultOnly(id){
+    const rowEl = rowsContainer.querySelector(`.row[data-id="${id}"]`);
+    if(!rowEl) return;
+    const row = rows.find(r=>r.id===id);
+    const aedVal = row.code === 'AED' ? (parseFloat(row.amount)||0) : toAED(parseFloat(row.amount)||0, row.code);
+    rowEl.querySelector('.result-wrap span').textContent = fmt(aedVal);
+  }
+
+  function updateTotal(){
+    let total = 0;
+    rows.forEach(r=>{
+      const amt = parseFloat(r.amount) || 0;
+      total += r.code === 'AED' ? amt : toAED(amt, r.code);
+    });
+    totalAEDEl.textContent = fmt(total);
+  }
+
+  function fallbackCopy(text){
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly','');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    area.style.pointerEvents = 'none';
+    document.body.appendChild(area);
+    area.focus();
+    area.select();
+    area.setSelectionRange(0, area.value.length);
+    let copied = false;
+    try{ copied = document.execCommand('copy'); }catch(err){ copied = false; }
+    document.body.removeChild(area);
+    return copied;
+  }
+
+  let copyFeedbackTimer;
+  async function copyTotal(){
+    const text = totalAEDEl.textContent;
+    let copied = false;
+    try{
+      if(navigator.clipboard && window.isSecureContext){
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      }else{
+        copied = fallbackCopy(text);
+      }
+    }catch(err){
+      copied = fallbackCopy(text);
+    }
+
+    clearTimeout(copyFeedbackTimer);
+    copyTotalLabel.textContent = copied ? 'تم النسخ ✓' : 'تعذّر النسخ';
+    copyTotalBtn.classList.toggle('copied', copied);
+    copyFeedbackTimer = setTimeout(()=>{
+      copyTotalLabel.textContent = 'نسخ الإجمالي';
+      copyTotalBtn.classList.remove('copied');
+    }, 1800);
+  }
+
+  function formatRate(value){
+    if(value >= 1) return fmt(value, 2);
+    if(value >= 0.01) return fmt(value, 4);
+    return fmt(value, 6);
+  }
+
+  function renderRateList(query){
+    const visible = filteredCurrencies(query).filter(c=>c.code!=='AED');
+    if(!visible.length){
+      rateListEl.innerHTML = '<div class="empty-search">لا توجد عملة مطابقة للبحث</div>';
+      return;
+    }
+    rateListEl.innerHTML = visible.map(c=>{
+      const rate = rates[c.code];
+      // كم تساوي وحدة واحدة من هذه العملة بالدرهم
+      const inverse = rate ? (1/rate) : 0;
+      return `
+        <div class="rate-item">
+          <span class="cur"><span class="flag-chip">${c.chip.slice(0,2)}</span> ${escapeHTML(c.name)}</span>
+          <span class="val">1 ${c.code} = ${formatRate(inverse)} د.إ</span>
+        </div>`;
+    }).join('');
+  }
+
+  function formatUpdateTime(value){
+    const date = new Date(value);
+    if(Number.isNaN(date.getTime())) return 'غير معروف';
+    return date.toLocaleString('ar-AE',{
+      day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'
+    });
+  }
+
+  function showStatus(message){
+    statusText.textContent = message;
+    statusBanner.classList.add('show');
+  }
+
+  function hideStatus(){
+    statusBanner.classList.remove('show');
+  }
+
+  function loadCachedRates(){
+    try{
+      const cached = JSON.parse(localStorage.getItem(RATE_CACHE_KEY) || 'null');
+      if(cached && cached.rates && typeof cached.rates === 'object'){
+        rates = Object.assign({}, OFFLINE_RATES, cached.rates);
+        lastUpdateEl.textContent = `أسعار محفوظة · ${formatUpdateTime(cached.updatedAt)}`;
+        return true;
+      }
+    }catch(err){ /* قد يمنع عارض الملفات التخزين المحلي */ }
+    return false;
+  }
+
+  function saveRatesToCache(updatedRates, updatedAt){
+    try{
+      localStorage.setItem(RATE_CACHE_KEY, JSON.stringify({
+        rates:updatedRates,
+        updatedAt
+      }));
+    }catch(err){ /* يستمر التطبيق حتى عند تعذّر الحفظ */ }
+  }
+
+  async function fetchRates(isManual){
+    if(!navigator.onLine){
+      showStatus('لا يوجد اتصال بالإنترنت؛ تُستخدم آخر أسعار محفوظة أو الأسعار المدمجة.');
+      return;
+    }
+
+    const previousUpdateText = lastUpdateEl.textContent;
+    refreshBtn.classList.add('spinning');
+    refreshBtn.disabled = true;
+    if(isManual) lastUpdateEl.textContent = 'جارٍ تحديث الأسعار…';
+
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(()=>controller.abort(), 12000) : null;
+    try{
+      const options = {cache:'no-store'};
+      if(controller) options.signal = controller.signal;
+      const response = await fetch('https://open.er-api.com/v6/latest/AED', options);
+      if(!response.ok) throw new Error('network-response');
+      const data = await response.json();
+      if(!data || data.result !== 'success' || !data.rates) throw new Error('invalid-rates');
+
+      rates = Object.assign({}, OFFLINE_RATES, data.rates, {AED:1});
+      const updatedAt = data.time_last_update_utc || new Date().toISOString();
+      saveRatesToCache(data.rates, updatedAt);
+      lastUpdateEl.textContent = `مباشر · ${formatUpdateTime(updatedAt)}`;
+      hideStatus();
+      renderRateList(currencySearchEl.value);
+      renderRows();
+    }catch(err){
+      showStatus('تعذّر تحديث الأسعار حاليًا؛ استمر التطبيق باستخدام الأسعار المحفوظة.');
+      if(isManual) lastUpdateEl.textContent = previousUpdateText;
+    }finally{
+      if(timeoutId) clearTimeout(timeoutId);
+      refreshBtn.classList.remove('spinning');
+      refreshBtn.disabled = false;
+    }
+  }
+
+  document.getElementById('addRowBtn').addEventListener('click', ()=>addRow('USD',''));
+  document.getElementById('clearInputsBtn').addEventListener('click', clearInputs);
+  copyTotalBtn.addEventListener('click', copyTotal);
+  refreshBtn.addEventListener('click', ()=>fetchRates(true));
+  currencySearchEl.addEventListener('input', e=>renderRateList(e.target.value));
+  document.addEventListener('click', closeCurrencyPickers);
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Escape') closeCurrencyPickers();
+  });
+  window.addEventListener('online', ()=>fetchRates(false));
+  window.addEventListener('offline', ()=>{
+    showStatus('انقطع الاتصال؛ سيستمر التطبيق باستخدام آخر أسعار محفوظة.');
+  });
+
+  // الوضع الليلي: يبدأ حسب تفضيل النظام، ويمكن تبديله يدويًا خلال الجلسة
+  const themeBtn = document.getElementById('themeBtn');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if(prefersDark){ document.body.setAttribute('data-theme','dark'); }
+
+  themeBtn.addEventListener('click', ()=>{
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  });
+
+  loadCachedRates();
+
+  // بيانات ابتدائية: صف الدرهم مباشرة + عملتان شائعتان كأمثلة
+  addRow('AED', '');
+  addRow('USD', '');
+  addRow('EUR', '');
+
+  renderRateList();
+  if(navigator.onLine){
+    fetchRates(false);
+  }else{
+    showStatus('التطبيق دون اتصال؛ تُستخدم آخر أسعار محفوظة أو الأسعار المدمجة.');
+  }
+
+})();
+</script>
+
+</body>
+</html>
